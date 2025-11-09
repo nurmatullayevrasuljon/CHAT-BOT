@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
+  <title>Profile — Chatbot AI</title>
+
+  <!-- Bootstrap 4 (CSS) -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body class="body-2">
+  <!-- Header -->
+  <header class="header" role="banner">
+    <a href="#" class="back-btn" id="backBtn" aria-label="Back">
+      <span class="back-icon" aria-hidden="true"><i class="bi bi-arrow-left"
+          style="font-size:18px;color:#222"></i></span>
+    </a>
+    <div class="header-title" aria-hidden="true">Profile</div>
+    <div style="width:40px"></div>
+  </header>
+
+  <main class="page" role="main" id="page">
+    <section class="profile-top" aria-labelledby="profileHeading">
+      <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80&auto=format&fit=crop"
+        alt="User avatar" class="avatar" id="avatarImg">
+      <h2 id="profileHeading" class="name">Muhammad Taif</h2>
+      <div class="email" id="profileEmail">taif2116@gmail.com</div>
+    </section>
+
+    <section class="list" aria-label="Profile options">
+      <div class="list-card" role="button" tabindex="0" aria-pressed="false" id="settingsBtn">
+        <div class="list-left">
+          <span class="icon-wrap" aria-hidden="true"><i class="bi bi-gear-wide"></i></span>
+          <div class="list-text">Settings</div>
+        </div>
+        <i class="bi bi-chevron-right list-chevron" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-card" role="button" tabindex="0" aria-pressed="false" id="notificationsBtn">
+        <div class="list-left">
+          <span class="icon-wrap" aria-hidden="true"><i class="bi bi-bell"></i></span>
+          <div class="list-text">Notifications</div>
+        </div>
+        <i class="bi bi-chevron-right list-chevron" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-card" role="button" tabindex="0" aria-pressed="false" id="historyBtn">
+        <div class="list-left">
+          <span class="icon-wrap" aria-hidden="true"><i class="bi bi-clock"></i></span>
+          <div class="list-text">History</div>
+        </div>
+        <i class="bi bi-chevron-right list-chevron" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-card" role="button" tabindex="0" aria-pressed="false" id="supportBtn">
+        <div class="list-left">
+          <span class="icon-wrap" aria-hidden="true"><i class="bi bi-question-circle"></i></span>
+          <div class="list-text">Support and Help</div>
+        </div>
+        <i class="bi bi-chevron-right list-chevron" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-card" role="button" tabindex="0" aria-pressed="false" id="logoutBtn">
+        <div class="list-left">
+          <span class="icon-wrap" aria-hidden="true"><i class="bi bi-box-arrow-right"></i></span>
+          <div class="list-text logout">Logout</div>
+        </div>
+        <i class="bi bi-chevron-right list-chevron" aria-hidden="true"></i>
+      </div>
+    </section>
+
+    <div class="spacer" aria-hidden="true"></div>
+  </main>
+
+  <!-- bottom nav -->
+  <nav class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <a class="nav-item" href="index.html"><i class="bi bi-house"></i>Home</a>
+    <a class="nav-item" href="saved.html"><i class="bi bi-bookmark"></i>Saved</a>
+    <a class="nav-item " href="chat.html"><i class="bi bi-robot"></i>Chatbot</a>
+    <a class="nav-item active" href="profile.html"><i class="bi bi-person"></i>Profile</a>
+  </nav>
+
+  <!-- Small JS for interactions (back, logout, keyboard accessibility) -->
+  <script>
+    // Back button (if inside app: history.back(), otherwise navigate to index)
+    document.getElementById('backBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+      if (window.history.length > 1) window.history.back();
+      else window.location.href = 'index.html'; // fallback
+    });
+
+    // Attach handlers to "cards"
+    function makeClickable(id, cb) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', cb);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); cb();
+        }
+      });
+    }
+
+    makeClickable('settingsBtn', () => { alert('Open Settings (implement)'); });
+    makeClickable('notificationsBtn', () => { alert('Open Notifications (implement)'); });
+    makeClickable('historyBtn', () => { alert('Open History (implement)'); });
+    makeClickable('supportBtn', () => { alert('Open Support (implement)'); });
+
+    makeClickable('logoutBtn', () => {
+      // Example logout: clear local storage/session and redirect to login
+      if (confirm('Are you sure you want to logout?')) {
+        // clear any app data here:
+        try { localStorage.clear(); sessionStorage.clear(); } catch (e) { }
+        // redirect to login (change if your route is different)
+        window.location.href = 'index.html';
+      }
+    });
+
+    // OPTIONAL: Make avatar editable (simple demo)
+    document.getElementById('avatarImg').addEventListener('click', () => {
+      // small demo: let user choose another image (requires input[type=file] or integration)
+      alert('Avatar change: implement file upload in app.');
+    });
+
+    // Accessibility: trap focus inside if you ever open modal - not needed here.
+
+
+    // profile.js
+    document.addEventListener("DOMContentLoaded", () => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+
+      if (userData) {
+        // Foydalanuvchi ma'lumotlarini joylashtiramiz
+        document.getElementById("profileHeading").textContent = userData.name;
+        document.getElementById("profileEmail").textContent = userData.email;
+      } else {
+        // Agar foydalanuvchi ma'lumotlari topilmasa, signup sahifasiga yo‘naltiramiz
+        window.location.href = "signup.html";
+      }
+    });
+
+  </script>
+</body>
+
+</html>

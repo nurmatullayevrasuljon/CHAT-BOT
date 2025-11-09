@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
+  <title>Chatbot AI</title>
+  <link rel="stylesheet" href="main.css">
+  <!-- Bootstrap 4 CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="body">
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <h1 class="m-auto">Chatbot AI</h1>
+    <div class="header-icon"><i class="bi bi-chat-dots"></i></div>
+  </header>
+
+  <!-- Main -->
+  <main class="main" id="main">
+    <div class="bot-wrap">
+      <img src="img/say hi 1.png" alt="bot" class="bot-img" id="botImg">
+    </div>
+
+    <!-- Default prompt bubble (shown when not active) -->
+    <div class="prompt-bubble" id="promptBubble"><i class="bi bi-stars"
+        style="color:var(--accent); margin-right:8px"></i> Hi, you can ask me anything about names</div>
+
+    <!-- Suggestion tags -->
+    <div class="suggestion" id="suggestionCard">
+      <p><i class="bi bi-stars" style="color:var(--accent); margin-right:8px"></i> I suggest you some names you can ask
+        me..</p>
+      <div class="tags" id="tagContainer">
+        <button class="tag">Business names</button>
+        <button class="tag">Human names</button>
+        <button class="tag">Games names</button>
+        <button class="tag">Pet names</button>
+        <button class="tag">Dish names</button>
+        <button class="tag">Character names</button>
+      </div>
+    </div>
+
+    <!-- Messages container (initially empty) -->
+    <div class="messages" id="messages"></div>
+  </main>
+  <!-- Input sticky (mic inside, send outside) -->
+  <div class="input-sticky" id="inputSticky" aria-hidden="false">
+    <div class="input-wrap border" role="region" aria-label="Message input">
+      <div class="input-left">
+        <input id="chatInput" class="chat-input" placeholder="Generate a name of ...." aria-label="Message input">
+        <button id="micBtn" class="mic-inside" aria-pressed="false" title="Use voice">
+          <i class="bi bi-mic"></i>
+        </button>
+      </div>
+      <button id="sendBtn" class="send-btn" title="Send">
+        <img class="bi bi-caret-right-fill" src="img/Frame 1171275521.png" alt="">
+        <!-- <i ></i> -->
+      </button>
+    </div>
+  </div>
+  <!-- bottom nav -->
+  <nav class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+    <a class="nav-item" href="index.html"><i class="bi bi-house"></i>Home</a>
+    <a class="nav-item" href="saved.html"><i class="bi bi-bookmark"></i>Saved</a>
+    <a class="nav-item active" href="chatbot.html"><i class="bi bi-robot"></i>Chatbot</a>
+    <a class="nav-item" href="profile.html"><i class="bi bi-person"></i>Profile</a>
+  </nav>
+
+  <!-- Scripts (plain JS) -->
+  <script>
+    (function () {
+  const body = document.body;
+  const main = document.getElementById('main');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const messages = document.getElementById('messages');
+  const tagContainer = document.getElementById('tagContainer');
+  const inputSticky = document.getElementById('inputSticky');
+  const bottomNav = document.querySelector(".bottom-nav");
+
+  // === STOP GENERATING OVERLAY ===
+  function showTypingOverlay() {
+    const old = document.querySelector(".typing-overlay");
+    if (old) old.remove();
+    const overlay = document.createElement("div");
+    overlay.className = "typing-overlay";
+    overlay.innerHTML = `
+      <div class="typing-box">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <span>Stop generating...</span>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  function hideTypingOverlay() {
+    const overlay = document.querySelector(".typing-overlay");
+    if (overlay) overlay.remove();
+  }
+
+  // === MAIN CHAT LOGIC ===
+  function appendUser(text) {
+    const el = document.createElement("div");
+    el.className = "bubble user";
+    el.textContent = text;
+    messages.appendChild(el);
+    scrollToBottom();
+  }
+
+  function appendBot(text) {
+    const el = document.createElement("div");
+    el.className = "bubble bot";
+    el.textContent = text;
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "copy-btn";
+    copyBtn.title = "Copy";
+    copyBtn.innerHTML = '<i class="bi bi-clipboard"></i>';
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(text);
+      copyBtn.innerHTML = '<i class="bi bi-check-lg"></i>';
+      setTimeout(() => copyBtn.innerHTML = '<i class="bi bi-clipboard"></i>', 1000);
+    });
+    el.appendChild(copyBtn);
+    messages.appendChild(el);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  function generateReply(userText) {
+    const lower = userText.toLowerCase();
+    if (!userText.trim()) return "Could you tell me more?";
+    if (lower.includes("business") || lower.includes("brand")) {
+      return `How about "VentureQuest", "NovaHarbor", or "BrightForge"? Want a different tone (modern/classic)?`;
+    }
+    if (lower.includes("pet")) {
+      return `Cute pet names: Nala, Buddy, Pepper, Mochi, Pixel. Want male/female suggestions?`;
+    }
+    if (lower.includes("dish") || lower.includes("food")) {
+      return `Dish name ideas: Saffron Cloud, Ember Glaze, Velvet Spoon. Prefer spicy or sweet?`;
+    }
+    if (lower.includes("game") || lower.includes("character")) {
+      return `Name ideas: Arion Vale, Lyra Skye, Thorne Black. Want a heroic or mysterious vibe?`;
+    }
+    const words = userText.split(/\s+/).filter(Boolean).slice(0, 3);
+    const base = words.join('');
+    const suggestions = [
+      base + 'ly', base + 'o', base + 'ia',
+      'The ' + (words[0] || 'Bright'),
+      (words[0] ? words[0].slice(0, 3) : 'Neo') + 'Labs'
+    ];
+    return `Here are suggestions based on "${userText}": ${suggestions.join(', ')}. Want more?`;
+  }
+
+  // 🧩 HANDLE SEND (ENTER va SEND uchun umumiy)
+  function handleSend(text) {
+    if (!text.trim()) return;
+
+    appendUser(text);
+    chatInput.value = "";
+    showTypingOverlay();
+
+    setTimeout(() => {
+      const reply = generateReply(text);
+      appendBot(reply);
+      hideTypingOverlay();
+
+      // 💾 Har safar (Enter, Send, yoki Tag) bosilganda saqlansin
+      const conversations = JSON.parse(localStorage.getItem("conversations")) || [];
+      conversations.push({ id: Date.now(), user: text, bot: reply });
+      localStorage.setItem("conversations", JSON.stringify(conversations));
+    }, 1500);
+  }
+
+  // 🟣 SEND tugmasi
+  sendBtn.addEventListener("click", () => {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    handleSend(text);
+  });
+
+  // 🟣 ENTER bosilganda yuborish
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      handleSend(text);
+    }
+  });
+
+  // 🟣 TAG bosilganda
+  tagContainer.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tag");
+    if (!btn) return;
+    const txt = btn.textContent.trim();
+
+    // 🔒 Inputni vaqtincha o‘chir
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
+
+    appendUser(txt);
+    showTypingOverlay();
+
+    setTimeout(() => {
+      const reply = generateReply(txt);
+      appendBot(reply);
+      hideTypingOverlay();
+
+      // 💾 Tag bosilganda ham saqlansin
+      const conversations = JSON.parse(localStorage.getItem("conversations")) || [];
+      conversations.push({ id: Date.now(), user: txt, bot: reply });
+      localStorage.setItem("conversations", JSON.stringify(conversations));
+
+      // 🔓 Inputni qayta yoqish
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.value = "";
+    }, 1500);
+  });
+})();
+// micrafon/
+document.addEventListener("DOMContentLoaded", () => {
+  const micBtn = document.getElementById("micBtn");
+  const body = document.body;
+  const bottomNav = document.querySelector(".bottom-nav");
+  const inputSticky = document.querySelector(".input-sticky");
+  const main = document.querySelector(".main");
+
+  let voiceOverlay = null;
+
+  micBtn.addEventListener("click", () => {
+    if (!body.classList.contains("voice-mode")) {
+      body.classList.add("voice-mode");
+
+      // Voice overlay yaratish (main ichiga)
+      voiceOverlay = document.createElement("div");
+      voiceOverlay.className = "voice-overlay";
+      voiceOverlay.innerHTML = `
+    <p>You can ask me everything about names</p>
+    <div class="mic-btn-big" id="closeVoice"><i class="bi bi-mic"></i></div>
+  `;
+      main.appendChild(voiceOverlay);
+
+      // Input va bottom-navni yashirish
+      if (inputSticky) inputSticky.style.display = "none";
+      if (bottomNav) bottomNav.style.display = "none";
+
+      // Yopish funksiyasi
+      voiceOverlay.querySelector("#closeVoice").addEventListener("click", () => {
+        voiceOverlay.remove();
+        body.classList.remove("voice-mode");
+        if (inputSticky) inputSticky.style.display = "flex";
+        if (bottomNav) bottomNav.style.display = "flex";
+      });
+    } else {
+      // Default holatga qaytarish
+      if (voiceOverlay) voiceOverlay.remove();
+      body.classList.remove("voice-mode");
+      if (inputSticky) inputSticky.style.display = "flex";
+      if (bottomNav) bottomNav.style.display = "flex";
+    }
+  });
+});
+    </script>
+</body>
+
+</html>

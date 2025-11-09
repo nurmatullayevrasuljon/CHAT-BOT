@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="login-container mt-4">
+      <img src="img/Group 7045.png" alt="Logo" class="logo">
+
+      <h3>Welcome Back!</h3>
+      <p>Enter your login details</p>
+
+      <form id="signupForm">
+        <div class="mb-3 position-relative">
+          <i class="bi bi-person input-icon"></i>
+          <input type="text" class="form-control" placeholder="Full Name" id="name" required>
+        </div>
+
+        <div class="mb-3 position-relative">
+          <i class="bi bi-envelope input-icon"></i>
+          <input type="email" class="form-control" placeholder="Enter Email" id="email" required>
+        </div>
+
+        <div class="mb-3 position-relative">
+          <i class="bi bi-lock input-icon"></i>
+          <input type="password" class="form-control" placeholder="Enter Password" id="password" required>
+          <i class="bi bi-eye-slash position-absolute" style="right: 15px; top: 12px; color: #8e8e8e;"
+            onclick="togglePassword()"></i>
+        </div>
+
+        <button type="submit" class="btn btn-login">Sign Up</button>
+      </form>
+
+      <div class="divider">Or</div>
+
+      <button class="btn btn-social" id="facebookLogin">
+        <i class="bi bi-facebook" style="color:#1877f2;"></i>
+        Sign up with Facebook
+      </button>
+
+      <button class="btn btn-social" id="googleLogin">
+        <i class="bi bi-google" style="color:#ea4335;"></i>
+        Sign up with Google
+      </button>
+
+      <div class="footer-text">
+        Already have an account? <a href="login.html">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // 🔐 Parolni ko‘rish/berkitish funksiyasi
+function togglePassword() {
+  const passInput = document.getElementById("password");
+  passInput.type = passInput.type === "password" ? "text" : "password";
+}
+
+// 📝 Forma yuborilganda foydalanuvchi ma'lumotlarini saqlash va profilga yo‘naltirish
+document.getElementById("signupForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (name && email && password) {
+    // 🔹 Foydalanuvchini localStorage’da saqlaymiz
+    const userData = {
+      name: name,
+      email: email,
+    };
+    localStorage.setItem("userData", JSON.stringify(userData));
+
+    // 🔹 Profil sahifasiga yo‘naltirish
+    window.location.href = "profile.html";
+  } else {
+    alert("Please fill out all fields!");
+  }
+});
+
+// 🌐 Facebook login bosilganda
+document.getElementById("facebookLogin").addEventListener("click", () => {
+  const demoUser = { name: "Facebook User", email: "fbuser@example.com" };
+  localStorage.setItem("userData", JSON.stringify(demoUser));
+  window.location.href = "profile.html";
+});
+
+// 🌐 Google login bosilganda
+document.getElementById("googleLogin").addEventListener("click", () => {
+  const demoUser = { name: "Google User", email: "googleuser@example.com" };
+  localStorage.setItem("userData", JSON.stringify(demoUser));
+  window.location.href = "profile.html";
+});
+
+  </script>
+</body>
+
+</html>
