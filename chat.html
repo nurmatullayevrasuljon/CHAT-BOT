@@ -75,8 +75,8 @@
   </nav>
 
   <!-- Scripts (plain JS) -->
-  <script>
-    (function () {
+ <script>
+(function () {
   const body = document.body;
   const main = document.getElementById('main');
   const chatInput = document.getElementById('chatInput');
@@ -85,6 +85,13 @@
   const tagContainer = document.getElementById('tagContainer');
   const inputSticky = document.getElementById('inputSticky');
   const bottomNav = document.querySelector(".bottom-nav");
+
+  // 🔑 Har bir foydalanuvchiga alohida ID beramiz
+  let userId = localStorage.getItem("chat_user_id");
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substring(2, 10);
+    localStorage.setItem("chat_user_id", userId);
+  }
 
   // === STOP GENERATING OVERLAY ===
   function showTypingOverlay() {
@@ -164,10 +171,17 @@
     return `Here are suggestions based on "${userText}": ${suggestions.join(', ')}. Want more?`;
   }
 
-  // 🧩 HANDLE SEND (ENTER va SEND uchun umumiy)
+  // 🧩 SAQLASH FUNKSIYASI
+  function saveConversation(user, bot) {
+    const key = `conversations_${userId}`;
+    const all = JSON.parse(localStorage.getItem(key)) || [];
+    all.push({ id: Date.now(), user, bot });
+    localStorage.setItem(key, JSON.stringify(all));
+  }
+
+  // 🧩 HANDLE SEND
   function handleSend(text) {
     if (!text.trim()) return;
-
     appendUser(text);
     chatInput.value = "";
     showTypingOverlay();
@@ -176,11 +190,7 @@
       const reply = generateReply(text);
       appendBot(reply);
       hideTypingOverlay();
-
-      // 💾 Har safar (Enter, Send, yoki Tag) bosilganda saqlansin
-      const conversations = JSON.parse(localStorage.getItem("conversations")) || [];
-      conversations.push({ id: Date.now(), user: text, bot: reply });
-      localStorage.setItem("conversations", JSON.stringify(conversations));
+      saveConversation(text, reply);
     }, 1500);
   }
 
@@ -207,7 +217,6 @@
     if (!btn) return;
     const txt = btn.textContent.trim();
 
-    // 🔒 Inputni vaqtincha o‘chir
     chatInput.disabled = true;
     sendBtn.disabled = true;
 
@@ -218,20 +227,15 @@
       const reply = generateReply(txt);
       appendBot(reply);
       hideTypingOverlay();
-
-      // 💾 Tag bosilganda ham saqlansin
-      const conversations = JSON.parse(localStorage.getItem("conversations")) || [];
-      conversations.push({ id: Date.now(), user: txt, bot: reply });
-      localStorage.setItem("conversations", JSON.stringify(conversations));
-
-      // 🔓 Inputni qayta yoqish
+      saveConversation(txt, reply);
       chatInput.disabled = false;
       sendBtn.disabled = false;
       chatInput.value = "";
     }, 1500);
   });
 })();
-// micrafon/
+
+// 🎙️ MIC OVERLAY
 document.addEventListener("DOMContentLoaded", () => {
   const micBtn = document.getElementById("micBtn");
   const body = document.body;
@@ -245,20 +249,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!body.classList.contains("voice-mode")) {
       body.classList.add("voice-mode");
 
-      // Voice overlay yaratish (main ichiga)
       voiceOverlay = document.createElement("div");
       voiceOverlay.className = "voice-overlay";
       voiceOverlay.innerHTML = `
-    <p>You can ask me everything about names</p>
-    <div class="mic-btn-big" id="closeVoice"><i class="bi bi-mic"></i></div>
-  `;
+        <p>You can ask me everything about names</p>
+        <div class="mic-btn-big" id="closeVoice"><i class="bi bi-mic"></i></div>
+      `;
       main.appendChild(voiceOverlay);
 
-      // Input va bottom-navni yashirish
       if (inputSticky) inputSticky.style.display = "none";
       if (bottomNav) bottomNav.style.display = "none";
 
-      // Yopish funksiyasi
       voiceOverlay.querySelector("#closeVoice").addEventListener("click", () => {
         voiceOverlay.remove();
         body.classList.remove("voice-mode");
@@ -266,7 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (bottomNav) bottomNav.style.display = "flex";
       });
     } else {
-      // Default holatga qaytarish
       if (voiceOverlay) voiceOverlay.remove();
       body.classList.remove("voice-mode");
       if (inputSticky) inputSticky.style.display = "flex";
@@ -274,7 +274,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-    </script>
+</script>
+
 </body>
 
 </html>

@@ -138,71 +138,81 @@
   </main>
 
   <script>
-    const list = document.getElementById("conversationList");
-    let conversations = JSON.parse(localStorage.getItem("conversations")) || [];
+const list = document.getElementById("conversationList");
 
-    function renderConversations() {
-      list.innerHTML = "";
-      if (conversations.length === 0) {
-        list.innerHTML = `<p style="text-align:center;color:#777;">No conversations yet</p>`;
-        return;
-      }
+// 🧩 Har bir foydalanuvchiga tegishli ma’lumotni olish
+let userId = localStorage.getItem("chat_user_id");
+if (!userId) {
+  userId = "user_" + Math.random().toString(36).substring(2, 10);
+  localStorage.setItem("chat_user_id", userId);
+}
 
-      conversations.forEach((conv) => {
-        const card = document.createElement("div");
-        card.className = "chat-card";
-        card.innerHTML = `
-          <div class="chat-content">
-            <h3>${conv.user}</h3>
-            <p>${conv.bot}</p>
-          </div>
-          <button class="menu-btn"><i class="bi bi-three-dots-vertical"></i></button>
-          <div class="dropdown">
-            <button class="edit-btn">✏️ Edit</button>
-            <button class="delete-btn">🗑️ Delete</button>
-          </div>
-        `;
+function renderConversations() {
+  const key = `conversations_${userId}`;
+  let conversations = JSON.parse(localStorage.getItem(key)) || [];
 
-        const menuBtn = card.querySelector(".menu-btn");
-        const dropdown = card.querySelector(".dropdown");
+  list.innerHTML = "";
+  if (conversations.length === 0) {
+    list.innerHTML = `<p style="text-align:center;color:#777;">No conversations yet</p>`;
+    return;
+  }
 
-        // Toggle menu
-        menuBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          document.querySelectorAll(".dropdown").forEach(d => d.style.display = "none");
-          dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-        });
+  conversations.forEach((conv) => {
+    const card = document.createElement("div");
+    card.className = "chat-card";
+    card.innerHTML = `
+      <div class="chat-content">
+        <h3>${conv.user}</h3>
+        <p>${conv.bot}</p>
+      </div>
+      <button class="menu-btn"><i class="bi bi-three-dots-vertical"></i></button>
+      <div class="dropdown">
+        <button class="edit-btn">✏️ Edit</button>
+        <button class="delete-btn">🗑️ Delete</button>
+      </div>
+    `;
 
-        // Edit
-        card.querySelector(".edit-btn").addEventListener("click", () => {
-          const newUser = prompt("Edit your question:", conv.user);
-          if (newUser !== null && newUser.trim()) {
-            conv.user = newUser;
-            localStorage.setItem("conversations", JSON.stringify(conversations));
-            renderConversations();
-          }
-        });
+    const menuBtn = card.querySelector(".menu-btn");
+    const dropdown = card.querySelector(".dropdown");
 
-        // Delete
-        card.querySelector(".delete-btn").addEventListener("click", () => {
-          if (confirm("Delete this conversation?")) {
-            conversations = conversations.filter(c => c.id !== conv.id);
-            localStorage.setItem("conversations", JSON.stringify(conversations));
-            renderConversations();
-          }
-        });
-
-        list.appendChild(card);
-      });
-    }
-
-    // Hide dropdowns when clicked outside
-    document.addEventListener("click", () => {
+    // Toggle dropdown
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       document.querySelectorAll(".dropdown").forEach(d => d.style.display = "none");
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
     });
 
-    renderConversations();
-  </script>
+    // Edit
+    card.querySelector(".edit-btn").addEventListener("click", () => {
+      const newUser = prompt("Edit your question:", conv.user);
+      if (newUser !== null && newUser.trim()) {
+        conv.user = newUser;
+        localStorage.setItem(key, JSON.stringify(conversations));
+        renderConversations();
+      }
+    });
+
+    // Delete
+    card.querySelector(".delete-btn").addEventListener("click", () => {
+      if (confirm("Delete this conversation?")) {
+        conversations = conversations.filter(c => c.id !== conv.id);
+        localStorage.setItem(key, JSON.stringify(conversations));
+        renderConversations();
+      }
+    });
+
+    list.appendChild(card);
+  });
+}
+
+// Close dropdowns on outside click
+document.addEventListener("click", () => {
+  document.querySelectorAll(".dropdown").forEach(d => d.style.display = "none");
+});
+
+renderConversations();
+</script>
+
 
 </body>
 </html>
